@@ -1,4 +1,3 @@
 package com.example.spotifyaisystem;
 
-public class Link {
-}
+public record Link(String url) {}

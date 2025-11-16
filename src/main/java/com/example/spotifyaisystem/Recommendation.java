@@ -1,4 +1,3 @@
 package com.example.spotifyaisystem;
 
-public class Recommendation {
-}
+public record Recommendation(int rank, double score, String trackId) {}

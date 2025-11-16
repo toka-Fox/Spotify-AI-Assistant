@@ -1,4 +1,3 @@
 package com.example.spotifyaisystem;
 
-public class Track {
-}
+public record Track(String id, String title, String artistName) {}
