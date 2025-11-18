@@ -5,13 +5,15 @@ import java.util.List;
 
 public class LibraryImporter {
 
-    public LibrarySnapshot importFromSpotify() {
+    public LibrarySnapshot importFromSpotify(String genre, String mood) {
+
+        String query = buildQuery(genre, mood);
+        System.out.println("Spotify search query: " + query);
 
         // 1) Try real Spotify API
         try {
             SpotifyApiClient client = new SpotifyApiClient();
-            // you can tweak the query string if you want
-            List<Track> fromSpotify = client.searchTracks("happy rock", 20);
+            List<Track> fromSpotify = client.searchTracks(query, 20);
 
             if (!fromSpotify.isEmpty()) {
                 System.out.println("Loaded " + fromSpotify.size() + " tracks from Spotify API.");
@@ -27,6 +29,40 @@ public class LibraryImporter {
         // 2) Fallback: your existing hard-coded sample library
         List<Track> fallback = buildFallbackTracks();
         return new LibrarySnapshot(fallback, Instant.now());
+    }
+
+    /**
+     * Build a Spotify search query based on genre + mood.
+     * Handles the four main combos explicitly:
+     *  - rock + happy
+     *  - rock + sad
+     *  - pop + happy
+     *  - pop + sad
+     * and falls back to simple generic queries otherwise.
+     */
+    private String buildQuery(String genre, String mood) {
+        String g = genre == null ? "" : genre.trim().toLowerCase();
+        String m = mood == null ? "" : mood.trim().toLowerCase();
+
+        // Four explicit combos
+        if (g.equals("rock") && m.equals("happy")) return "happy rock";
+        if (g.equals("rock") && m.equals("sad"))   return "sad rock";
+        if (g.equals("pop")  && m.equals("happy")) return "happy pop";
+        if (g.equals("pop")  && m.equals("sad"))   return "sad pop";
+
+        // Generic fallbacks
+        if (!g.isBlank() && !m.isBlank()) {
+            return m + " " + g; // e.g. "chill rock", "angry metal"
+        }
+        if (!g.isBlank()) {
+            return g + " music"; // e.g. "jazz music"
+        }
+        if (!m.isBlank()) {
+            return m + " music"; // e.g. "sad music"
+        }
+
+        // No input at all – just grab something general
+        return "popular music";
     }
 
     private List<Track> buildFallbackTracks() {

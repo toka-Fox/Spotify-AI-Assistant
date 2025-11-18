@@ -16,27 +16,25 @@ public class GuiApp extends Application {
     private List<Track> library;
     private InputHandler handler;
     private Recommender recommender;
-    private AiExplainer aiExplainer;          // <-- NEW
-    // If you want direct access to SpotifyApiClient in the GUI:
-    // private SpotifyApiClient spotifyApiClient;
+    private AiExplainer aiExplainer;
+    private LibraryImporter importer;
 
     // remember last recommendations so we can export them
     private List<Recommendation> lastTopRecs = List.of();
 
+    // label we update after each import
+    private Label importedLabel;
+
     @Override
     public void start(Stage stage) {
-        // 1) Import library
-        LibraryImporter importer = new LibraryImporter();
-        LibrarySnapshot snapshot = importer.importFromSpotify();
-        library = snapshot.tracks();
+        // Core services
+        importer = new LibraryImporter();
+
+        // Start with an empty library; we’ll import when user clicks the button
+        library = List.of();
         handler = new InputHandler(library);
         recommender = new Recommender();
-
-        // Initialize AiExplainer (OpenAI) once and reuse
         aiExplainer = new AiExplainer();
-
-        // If you want to use SpotifyApiClient directly (optional):
-        // spotifyApiClient = new SpotifyApiClient();
 
         // ======= UI controls =======
         TextField genreField = new TextField();
@@ -59,9 +57,7 @@ public class GuiApp extends Application {
         outputArea.setEditable(false);
         outputArea.setWrapText(true);
 
-        Label importedLabel = new Label(
-                "Imported " + library.size() + " tracks at " + snapshot.importedAt()
-        );
+        importedLabel = new Label("No tracks imported yet. Click 'Get Recommendations' to search Spotify.");
 
         // Layout
         HBox genresRow = new HBox(10, new Label("Genres:"), genreField);
@@ -90,6 +86,27 @@ public class GuiApp extends Application {
             boolean includeNewArtists = newArtistsBox.isSelected();
             int requested = countSpinner.getValue();
 
+            // Use only the first genre/mood for the Spotify query
+            String genreForQuery = "";
+            String moodForQuery = "";
+
+            if (!genreLine.isBlank()) {
+                genreForQuery = genreLine.split("\\s*,\\s*")[0]; // first genre
+            }
+            if (!moodLine.isBlank()) {
+                moodForQuery = moodLine.split("\\s*,\\s*")[0];   // first mood
+            }
+
+            // Re-import the library from Spotify based on genre + mood
+            LibrarySnapshot snapshot = importer.importFromSpotify(genreForQuery, moodForQuery);
+            library = snapshot.tracks();
+            handler = new InputHandler(library); // rebuild with fresh library
+
+            importedLabel.setText(
+                    "Imported " + library.size() + " tracks at " + snapshot.importedAt()
+            );
+
+            // Now parse full genre/mood lists for the preference object
             List<String> genres = genreLine.isBlank()
                     ? List.of()
                     : List.of(genreLine.split("\\s*,\\s*"));
