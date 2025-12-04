@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class ConfigLoader {
-    private static Properties props;
+    private static final Properties props;
 
     static {
         props = new Properties();

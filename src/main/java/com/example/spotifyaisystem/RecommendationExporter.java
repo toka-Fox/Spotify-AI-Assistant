@@ -11,35 +11,24 @@ public class RecommendationExporter {
      * Exports recommendations as a simple CSV file.
      * In Phase 2 terms, this is the "Download Recommendations" use case.
      */
-    public Path exportAsCsv(List<Recommendation> recs, List<Track> library, String fileName)
+    public Path exportAsCsv(List<Track> tracks, String fileName)
             throws IOException {
 
         StringBuilder sb = new StringBuilder();
 
-        for (Recommendation r : recs) {
-            Track track = findTrackById(library, r.trackId());
-            String title = track != null ? track.title() : "";
-            String artist = track != null ? track.artistName() : "";
-            sb.append(r.rank())
+        int i = 1;
+        for (Track track : tracks) {
+            sb.append(i++)
                     .append(" - ")
-                    .append('"').append(title).append('"')
-                    .append(" by ").append(artist)
-                    .append(": \n")
-                    .append("        Score: " + r.score())
-                    .append("\n")
-                    .append("        Spotify link: https://open.spotify.com/track/" + r.trackId())
+                    .append('"').append(track.getTitle()).append('"')
+                    .append(" by ").append(track.getArtistName())
+                    .append(": \n").append("        Score: ").append(track.getScore())
+                    .append("\n").append("        Spotify link: ").append(track.getLink())
                     .append('\n');
         }
 
         Path path = Path.of(fileName);
         Files.writeString(path, sb.toString());
         return path;
-    }
-
-    private Track findTrackById(List<Track> library, String id) {
-        for (Track t : library) {
-            if (t.id().equals(id)) return t;
-        }
-        return null;
     }
 }

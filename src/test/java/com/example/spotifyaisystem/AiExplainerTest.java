@@ -10,12 +10,24 @@ class AiExplainerTest {
     private List<Track> recommendedTracks;
     private final String genre = "Classic Rock";
     private final String mood = "Exciting";
+    private final String era = "90s";
+
+    ProcessedInput input;
 
     @BeforeEach
     public void setUp() {
         ai = new AiExplainer();
-        LibrarySnapshot result = ai.getRecommendations(genre, mood);
+        LibrarySnapshot result = ai.getRecommendations(genre, mood, era, 2);
         recommendedTracks = result.tracks();
+
+        InputHandler handler = new InputHandler(recommendedTracks);
+        Preference pref = new Preference(
+                Collections.singletonList(genre),
+                Collections.singletonList(mood),
+                Collections.singletonList(era),
+                true
+        );
+        input = handler.processInput(pref);
     }
 
     @Test
@@ -27,15 +39,15 @@ class AiExplainerTest {
 
     @Test
     public void explainRecommendationsTest() {
-        InputHandler handler = new InputHandler(recommendedTracks);
-        Preference pref = new Preference(
-                Collections.singletonList(genre),
-                Collections.singletonList(mood),
-                true
-        );
-        ProcessedInput input = handler.processInput(pref);
-
         String result = ai.explainRecommendations(input, recommendedTracks);
         System.out.println(result);
+    }
+
+    @Test
+    public void scoreRecommendationsTest() {
+        for (Track track : recommendedTracks) {
+            int score = Integer.parseInt(ai.scoreRecommendations(track, input));
+            System.out.println(score);
+        }
     }
 }

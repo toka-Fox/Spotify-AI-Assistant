@@ -16,7 +16,7 @@ public class GuiApp extends Application {
         Parent root = loader.load();
         Scene scene = new Scene(root);
 
-        stage.setTitle("Spotify AI - JavaFX Demo");
+        stage.setTitle("Spotify AI Recommendation System");
         stage.setScene(scene);
         stage.show();
     }

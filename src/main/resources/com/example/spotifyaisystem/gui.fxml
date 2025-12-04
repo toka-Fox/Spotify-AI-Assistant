@@ -12,6 +12,7 @@
             </padding>
             <Label text="Genres:" textFill="WHITE" />
             <Label text="Moods:" textFill="WHITE" />
+         <Label text="Era:" textFill="WHITE" />
             <Label text="Number of Results:" textFill="WHITE">
                 <padding>
                     <Insets top="30.0" />
@@ -24,6 +25,7 @@
             </padding>
             <TextField fx:id="genreField" promptText="Rock, Pop, etc." style="-fx-background-color: rgb(108, 108, 115); -fx-text-fill: white;" />
             <TextField fx:id="moodField" promptText="Happy, Sad, etc." style="-fx-background-color: rgb(108, 108, 115); -fx-text-fill: white;" />
+         <TextField fx:id="eraField" promptText="80s, 90s, etc." style="-fx-background-color: rgb(108, 108, 115); -fx-text-fill: white;" />
             <Spinner fx:id="countSpinner" editable="true" prefHeight="25.0" prefWidth="190.0" style="-fx-base: rgb(108, 108, 115);">
                 <VBox.margin>
                     <Insets top="32.0" />

@@ -18,7 +18,7 @@ public class AiExplainer {
         String apiKey = ConfigLoader.get("OPENAI_API_KEY");
         this.client = OpenAIOkHttpClient.builder().apiKey(apiKey).build();
 
-        if (apiKey == null) {
+        if (apiKey.isBlank()) {
             throw new IllegalStateException("OpenAI API key is not set in config.properties.");
         }
     }
@@ -28,25 +28,27 @@ public class AiExplainer {
     }
 
     private String extractFirstText(ChatCompletion completion) {
-        if (completion.choices() == null || completion.choices().isEmpty()) {
+        if (completion.choices().isEmpty() || completion.choices().isEmpty()) {
             return "";
         }
 
-        var firstChoice = completion.choices().get(0);
+        ChatCompletion.Choice firstChoice = completion.choices().getFirst();
 
-        if (firstChoice.message() == null) {
+        if (!firstChoice.message().isValid()) {
             return "";
         }
 
         return firstChoice.message().content().orElse("");
     }
 
-    public LibrarySnapshot getRecommendations(String genre, String mood) {
+    public List<Track> getRecommendations(String genre, String mood, String era, int count) {
+        System.out.println(era);
 
-        String query = "Give me a list of five songs in the format of - '[SONG1]' [ARTIST1], '[SONG2]' [ARTIST2], etc. " +
+        String query = "Give me " + count + " songs in the format of - '[SONG1]' [ARTIST1], '[SONG2]' [ARTIST2], etc. " +
                             "Do not output any other text other than that. The songs must have the following traits:\n" +
                             "In the genre of " + genre +",\n" +
-                            "A mood of " + mood;
+                            "A mood of " + mood + ",\n" +
+                            "In the music era of " + era;
 
         try {
             SpotifyApiClient spotifyClient = new SpotifyApiClient();
@@ -64,13 +66,14 @@ public class AiExplainer {
             List<Track> fromSpotify = new java.util.ArrayList<>(List.of());
 
             for (String result : results) {
+                System.out.println(result);
                 Track track = spotifyClient.searchTrack(result);
                 fromSpotify.add(track);
             }
 
             if (!fromSpotify.isEmpty()) {
                 System.out.println("Loaded " + fromSpotify.size() + " tracks from Spotify API.");
-                return new LibrarySnapshot(fromSpotify, Instant.now());
+                return fromSpotify;
             } else {
                 System.out.println("Spotify returned no tracks.");
             }
@@ -81,18 +84,20 @@ public class AiExplainer {
         return null;
     }
 
-    public String explainRecommendations(ProcessedInput input, List<Track> recommendedTracks) {
-        String genres = String.join(", ", input.genres());
-        String moods = String.join(", ", input.moods());
+    public String explainRecommendations(Preference pref, List<Track> recommendedTracks) {
+        String genres = String.join(", ", pref.genres());
+        String moods = String.join(", ", pref.moods());
+        String eras = String.join(", ", pref.eras());
 
         String trackList = recommendedTracks.stream()
-                .map(t -> t.title() + " by " + t.artistName() + " (id=" + t.id() + ")")
+                .map(t -> t.getTitle() + " by " + t.getArtistName() + " (id=" + t.getId() + ")")
                 .collect(Collectors.joining("; "));
 
         String userPrompt =
                 "Explain a simple music recommendation in a casual way.\n\n" +
                         "Genres: " + genres + "\n" +
                         "Moods: " + moods + "\n" +
+                        "Eras: " + eras + "\n" +
                         "Recommended: " + trackList + "\n\n" +
                         "Explain in 3–5 sentences why these tracks match the genres and moods given.";
 
@@ -106,13 +111,21 @@ public class AiExplainer {
         return extractFirstText(completion);
     }
 
-    public String scoreRecommendations(Track track, ProcessedInput input) {
+    public void scoreRecommendations(List<Track> tracks, Preference pref) {
         try {
-            String userPrompt = "Take the following song and give it a score 1 to 5 on how well it fits the genre and mood described. Dont be afraid to rate it low if needed." +
-                    "Do not generate any other text. Only generate the number." +
-                    "Genres: " + input.genres() +
-                    "Moods: " + input.moods() +
-                    "Song: " + track.title() + " by " + track.artistName();
+            StringBuilder sb = new StringBuilder();
+
+            for (Track track : tracks) {
+                String s = '"' + track.getTitle() + '"' + " by " + track.getArtistName() + "\n";
+                sb.append(s);
+            }
+
+            String userPrompt = "Take the following songs and give them a score 1 to 5 on how well they fit the genre and mood described. Dont be afraid to rate them low if needed." +
+                    "Do not generate any other text. Only generate the numbers split by commas. Example: 5, 2, 3, 4, etc." +
+                    "Genres: " + pref.genres() +
+                    "Moods: " + pref.moods() +
+                    "Eras: " + pref.eras() +
+                    "Songs: " + sb;
 
             ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                     .model(ChatModel.GPT_4_1_MINI)
@@ -121,11 +134,14 @@ public class AiExplainer {
 
             ChatCompletion completion = client.chat().completions().create(params);
 
-            return extractFirstText(completion);
+            String result = extractFirstText(completion);
+
+            String[] scores = result.split(", ");
+            for (int i = 0; i < scores.length; i++) {
+                tracks.get(i).setScore(Integer.parseInt(scores[i]));
+            }
         } catch (Exception e) {
             System.out.println("API call failed: " + e.getMessage());
         }
-
-        return null;
     }
 }
