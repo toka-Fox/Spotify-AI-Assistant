@@ -36,37 +36,12 @@ public class Recommender {
         return set;
     }
 
-    private double scoreTrack(Track track, ProcessedInput input) {
-        String titleLower = track.title().toLowerCase();
-        double score = 0.0;
+    private int scoreTrack(Track track, ProcessedInput input) {
+        AiExplainer ai = new AiExplainer();
 
-        // genre matches from the title
-        for (String g : input.genres()) {
-            if (titleLower.contains(g.toLowerCase())) {
-                score += 1.0;
-            }
-        }
-
-        // mood matches from the title
-        for (String m : input.moods()) {
-            if (titleLower.contains(m.toLowerCase())) {
-                score += 1.0;
-            }
-        }
-
-        // new vs familiar artists preference
-        boolean isFavoriteArtist = FAVORITE_ARTISTS.contains(track.artistName());
-        if (input.includeNewArtists()) {
-            // user wants new artists: bonus if it's NOT in the favorites list
-            if (!isFavoriteArtist) {
-                score += 0.5;
-            }
-        } else {
-            // user prefers familiar artists: bonus if it IS in the favorites list
-            if (isFavoriteArtist) {
-                score += 0.5;
-            }
-        }
+        String result = ai.scoreRecommendations(track, input);
+        System.out.println(result);
+        int score = Integer.parseInt(result);
 
         return score;
     }

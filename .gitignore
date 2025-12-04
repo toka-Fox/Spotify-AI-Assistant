@@ -5,13 +5,12 @@ target/
 .kotlin
 
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/
 *.iws
 *.iml
 *.ipr
+recommendations_gui.txt
+config.properties
 
 ### Eclipse ###
 .apt_generated

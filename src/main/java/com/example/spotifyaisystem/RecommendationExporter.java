@@ -15,21 +15,19 @@ public class RecommendationExporter {
             throws IOException {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("rank,score,trackId,title,artist\n");
 
         for (Recommendation r : recs) {
             Track track = findTrackById(library, r.trackId());
             String title = track != null ? track.title() : "";
             String artist = track != null ? track.artistName() : "";
             sb.append(r.rank())
-                    .append(',')
-                    .append(r.score())
-                    .append(',')
-                    .append(r.trackId())
-                    .append(',')
+                    .append(" - ")
                     .append('"').append(title).append('"')
-                    .append(',')
-                    .append('"').append(artist).append('"')
+                    .append(" by ").append(artist)
+                    .append(": \n")
+                    .append("        Score: " + r.score())
+                    .append("\n")
+                    .append("        Spotify link: https://open.spotify.com/track/" + r.trackId())
                     .append('\n');
         }
 

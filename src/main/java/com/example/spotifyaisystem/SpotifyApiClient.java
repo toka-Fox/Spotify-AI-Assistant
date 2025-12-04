@@ -19,10 +19,11 @@ public class SpotifyApiClient {
     private final HttpClient http;
 
     public SpotifyApiClient() {
-        this.clientId = System.getenv("SPOTIFY_CLIENT_ID");
-        this.clientSecret = System.getenv("SPOTIFY_CLIENT_SECRET");
+        this.clientId = ConfigLoader.get("SPOTIFY_CLIENT_ID");
+        this.clientSecret = ConfigLoader.get("SPOTIFY_CLIENT_SECRET");
+
         if (clientId == null || clientSecret == null) {
-            throw new IllegalStateException("Spotify client id/secret not set in environment variables.");
+            throw new IllegalStateException("Spotify client id/secret not set in config.properties.");
         }
         this.http = HttpClient.newHttpClient();
     }

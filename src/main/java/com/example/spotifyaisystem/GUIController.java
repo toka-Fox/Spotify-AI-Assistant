@@ -37,7 +37,6 @@ public class GUIController {
         outputArea.setStyle("-fx-control-inner-background: rgb(108, 108, 115);" +
                 "-fx-text-fill: white;" +
                 "-fx-border-color: rgb(108, 108, 115);");
-
     }
 
     public void recommend() {
@@ -51,16 +50,16 @@ public class GUIController {
         String moodForQuery = "";
 
         if (!genreLine.isBlank()) {
-            genreForQuery = genreLine.split("\\s*,\\s*")[0]; // first genre
+            genreForQuery = genreLine.split("\\s*,\\s*")[0];
         }
         if (!moodLine.isBlank()) {
-            moodForQuery = moodLine.split("\\s*,\\s*")[0];   // first mood
+            moodForQuery = moodLine.split("\\s*,\\s*")[0];
         }
 
         // Re-import the library from Spotify based on genre + mood
         LibrarySnapshot snapshot = aiExplainer.getRecommendations(genreForQuery, moodForQuery);
         library = snapshot.tracks();
-        InputHandler handler = new InputHandler(library); // rebuild with fresh library
+        InputHandler handler = new InputHandler(library);
 
 //        importedLabel.setText(
 //                "Imported " + library.size() + " tracks at " + snapshot.importedAt()
@@ -95,8 +94,8 @@ public class GUIController {
 
         int n = Math.min(requested, set.size());
         List<Recommendation> top = set.getTopN(n);
-        lastTopRecs = top;             // save for export
-        exportButton.setDisable(false); // now we can export
+        lastTopRecs = top;
+        exportButton.setDisable(false);
 
         RecommendationSet topSet = new RecommendationSet();
         for (Recommendation r : top) {
@@ -108,7 +107,6 @@ public class GUIController {
         sb.append("Processed input: ").append(pi).append("\n\n");
         sb.append("Top ").append(n).append(" recommendations:\n");
 
-        // Build list of concrete Track objects for the AI explainer
         List<Track> recommendedTracks = new ArrayList<>();
 
         for (int i = 0; i < top.size(); i++) {
@@ -118,7 +116,7 @@ public class GUIController {
             String label;
             if (track != null) {
                 label = track.title() + " – " + track.artistName();
-                recommendedTracks.add(track);  // only add if we resolved the track
+                recommendedTracks.add(track);
             } else {
                 label = "Track ID " + rec.trackId();
             }
@@ -128,7 +126,6 @@ public class GUIController {
             sb.append("   Link:  ").append(links.get(i).url()).append("\n\n");
         }
 
-        // ======= Ask OpenAI to explain the recommendations =======
         try {
             if (!recommendedTracks.isEmpty()) {
                 String explanation = aiExplainer.explainRecommendations(pi, recommendedTracks);
@@ -163,7 +160,7 @@ public class GUIController {
         }
         RecommendationExporter exporter = new RecommendationExporter();
         try {
-            var path = exporter.exportAsCsv(lastTopRecs, library, "recommendations_gui.csv");
+            var path = exporter.exportAsCsv(lastTopRecs, library, "recommendations_gui.txt");
             outputArea.appendText("\nExported to: " + path.toAbsolutePath() + "\n");
         } catch (Exception ex) {
             outputArea.appendText("\nFailed to export: " + ex.getMessage() + "\n");
