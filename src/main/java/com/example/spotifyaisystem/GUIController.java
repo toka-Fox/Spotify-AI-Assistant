@@ -1,10 +1,7 @@
 package com.example.spotifyaisystem;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 
@@ -20,7 +17,7 @@ public class GUIController {
     @FXML private Button recommendButton;
     @FXML private Button exportButton;
 
-    @FXML private TextFlow outputArea;
+    @FXML private TextArea outputArea;
 
     private List<Track> library = List.of();
     private final Recommender recommender = new Recommender();
@@ -35,8 +32,12 @@ public class GUIController {
                 new SpinnerValueFactory.IntegerSpinnerValueFactory(1, 10, 4);
 
         countSpinner.setValueFactory(valueFactory);
-
         countSpinner.setEditable(false);
+
+        outputArea.setStyle("-fx-control-inner-background: rgb(108, 108, 115);" +
+                "-fx-text-fill: white;" +
+                "-fx-border-color: rgb(108, 108, 115);");
+
     }
 
     public void recommend() {
@@ -75,7 +76,7 @@ public class GUIController {
                 : List.of(moodLine.split("\\s*,\\s*"));
 
         if (genres.isEmpty() && moods.isEmpty()) {
-            outputArea.getChildren().add(new Text("Please enter at least one genre or mood."));
+            outputArea.setText("Please enter at least one genre or mood.");
             exportButton.setDisable(true);
             lastTopRecs = List.of();
             return;
@@ -86,7 +87,7 @@ public class GUIController {
 
         RecommendationSet set = recommender.recommend(pi, library);
         if (set.size() == 0) {
-            outputArea.getChildren().add(new Text("No recommendations matched your preferences."));
+            outputArea.setText("No recommendations matched your preferences.");
             exportButton.setDisable(true);
             lastTopRecs = List.of();
             return;
@@ -143,7 +144,7 @@ public class GUIController {
                     .append("\n");
         }
 
-        outputArea.getChildren().add(new Text(sb.toString()));
+        outputArea.setText(sb.toString());
     }
 
     private Track findTrackById(List<Track> library, String id) {
@@ -157,15 +158,15 @@ public class GUIController {
 
     public void export() {
         if (lastTopRecs == null || lastTopRecs.isEmpty()) {
-            outputArea.getChildren().add(new Text("\nNo recommendations to export.\n"));
+            outputArea.appendText("\nNo recommendations to export.\n");
             return;
         }
         RecommendationExporter exporter = new RecommendationExporter();
         try {
             var path = exporter.exportAsCsv(lastTopRecs, library, "recommendations_gui.csv");
-            outputArea.getChildren().add(new Text("\nExported to: " + path.toAbsolutePath() + "\n"));
+            outputArea.appendText("\nExported to: " + path.toAbsolutePath() + "\n");
         } catch (Exception ex) {
-            outputArea.getChildren().add(new Text("\nFailed to export: " + ex.getMessage() + "\n"));
+            outputArea.appendText("\nFailed to export: " + ex.getMessage() + "\n");
         }
     }
 }
