@@ -29,11 +29,11 @@ public class SpotifyApiClient {
         this.http = HttpClient.newHttpClient();
     }
 
-    public List<Track> searchTracks(String query, int limit) throws Exception {
+    public Track searchTrack(String query) throws Exception {
         String token = requestAccessToken();
         String encodedQuery = URLEncoder.encode(query, StandardCharsets.UTF_8);
         String url = "https://api.spotify.com/v1/search?q=" + encodedQuery +
-                "&type=track&limit=" + limit;
+                "&type=track&limit=1";  // ask Spotify for only one
 
         HttpRequest req = HttpRequest.newBuilder()
                 .uri(URI.create(url))
@@ -50,22 +50,22 @@ public class SpotifyApiClient {
         JsonObject tracksObj = root.getAsJsonObject("tracks");
         JsonArray items = tracksObj.getAsJsonArray("items");
 
-        List<Track> result = new ArrayList<>();
-        for (int i = 0; i < items.size(); i++) {
-            JsonObject item = items.get(i).getAsJsonObject();
-            String id = item.get("id").getAsString();
-            String name = item.get("name").getAsString();
-
-            JsonArray artists = item.getAsJsonArray("artists");
-            String artistName = artists.size() > 0
-                    ? artists.get(0).getAsJsonObject().get("name").getAsString()
-                    : "Unknown Artist";
-
-            result.add(new Track(id, name, artistName));
+        if (items.size() == 0) {
+            return null;  // or throw exception
         }
 
-        return result;
+        JsonObject item = items.get(0).getAsJsonObject();
+        String id = item.get("id").getAsString();
+        String name = item.get("name").getAsString();
+
+        JsonArray artists = item.getAsJsonArray("artists");
+        String artistName = artists.size() > 0
+                ? artists.get(0).getAsJsonObject().get("name").getAsString()
+                : "Unknown Artist";
+
+        return new Track(id, name, artistName);
     }
+
 
     private String requestAccessToken() throws Exception {
         String authString = clientId + ":" + clientSecret;

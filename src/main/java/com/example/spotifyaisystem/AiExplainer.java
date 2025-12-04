@@ -6,6 +6,7 @@ import com.openai.models.ChatModel;
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,23 +41,47 @@ public class AiExplainer {
         return firstChoice.message().content().orElse("");
     }
 
-    /**
-     * Simple test method.
-     */
-    public String simpleTest(String prompt) {
-        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
-                .model(ChatModel.GPT_4_1_MINI)   // newest cheap model
-                .addUserMessage(prompt)
-                .build();
+    public LibrarySnapshot getRecommendations(String genre, String mood) {
 
-        ChatCompletion completion = client.chat().completions().create(params);
+        String query = "Give me a list of five songs in the format of - '[SONG1]' [ARTIST1], '[SONG2]' [ARTIST2], etc. " +
+                            "Do not output any other text other than that. The songs must have the following traits:\n" +
+                            "In the genre of " + genre +",\n" +
+                            "A mood of " + mood;
 
-        return extractFirstText(completion);
+        // 1) Try real Spotify API
+        try {
+            SpotifyApiClient spotifyClient = new SpotifyApiClient();
+
+            ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+                    .model(ChatModel.GPT_4_1_MINI)
+                    .addUserMessage(query)
+                    .build();
+
+            ChatCompletion completion = client.chat().completions().create(params);
+            String output = extractFirstText(completion);
+
+            String[] results = output.split(", ");
+
+            List<Track> fromSpotify = new java.util.ArrayList<>(List.of());
+
+            for (String result : results) {
+                Track track = spotifyClient.searchTrack(result);
+                fromSpotify.add(track);
+            }
+
+            if (!fromSpotify.isEmpty()) {
+                System.out.println("Loaded " + fromSpotify.size() + " tracks from Spotify API.");
+                return new LibrarySnapshot(fromSpotify, Instant.now());
+            } else {
+                System.out.println("Spotify returned no tracks.");
+            }
+        } catch (Exception e) {
+            System.out.println("API failed: " + e.getMessage());
+        }
+
+        return null;
     }
 
-    /**
-     * Main explanation method.
-     */
     public String explainRecommendations(ProcessedInput input, List<Track> recommendedTracks) {
         String genres = String.join(", ", input.genres());
         String moods = String.join(", ", input.moods());
@@ -71,7 +96,7 @@ public class AiExplainer {
                         "Moods: " + moods + "\n" +
                         "Include new artists? " + input.includeNewArtists() + "\n" +
                         "Recommended: " + trackList + "\n\n" +
-                        "Explain in 3–5 sentences why these tracks match.";
+                        "Explain in 3–5 sentences why these tracks match the genres and moods given.";
 
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(ChatModel.GPT_4_1_MINI)

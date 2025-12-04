@@ -1,20 +1,18 @@
 package com.example.spotifyaisystem;
 
-import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SpotifyPullTest {
-    public static void main(String[] args) {
-        LibraryImporter importer = new LibraryImporter();
-        LibrarySnapshot snapshot = importer.importFromSpotify();
+    SpotifyApiClient api;
+    @BeforeEach
+    public void setUp() {
+        api = new SpotifyApiClient();
+    }
 
-        System.out.println("Imported " + snapshot.tracks().size()
-                + " tracks at " + snapshot.importedAt());
-
-        List<Track> tracks = snapshot.tracks();
-        for (int i = 0; i < Math.min(5, tracks.size()); i++) {
-            Track t = tracks.get(i);
-            System.out.println((i + 1) + ". " + t.title() + " – " + t.artistName()
-                    + " (id=" + t.id() + ")");
-        }
+    @Test
+    public void searchTrackTest() throws Exception {
+        Track track = api.searchTrack("'commatose' glass beach");
+        System.out.println(track);
     }
 }

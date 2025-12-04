@@ -17,7 +17,6 @@ public class GuiApp extends Application {
     private InputHandler handler;
     private Recommender recommender;
     private AiExplainer aiExplainer;
-    private LibraryImporter importer;
 
     // remember last recommendations so we can export them
     private List<Recommendation> lastTopRecs = List.of();
@@ -27,9 +26,6 @@ public class GuiApp extends Application {
 
     @Override
     public void start(Stage stage) {
-        // Core services
-        importer = new LibraryImporter();
-
         // Start with an empty library; we’ll import when user clicks the button
         library = List.of();
         handler = new InputHandler(library);
@@ -81,6 +77,8 @@ public class GuiApp extends Application {
         // ======= Button actions =======
 
         recommendButton.setOnAction(e -> {
+            outputArea.setText("Working...");
+
             String genreLine = genreField.getText().trim();
             String moodLine = moodField.getText().trim();
             boolean includeNewArtists = newArtistsBox.isSelected();
@@ -98,7 +96,7 @@ public class GuiApp extends Application {
             }
 
             // Re-import the library from Spotify based on genre + mood
-            LibrarySnapshot snapshot = importer.importFromSpotify(genreForQuery, moodForQuery);
+            LibrarySnapshot snapshot = aiExplainer.getRecommendations(genreForQuery, moodForQuery);
             library = snapshot.tracks();
             handler = new InputHandler(library); // rebuild with fresh library
 
