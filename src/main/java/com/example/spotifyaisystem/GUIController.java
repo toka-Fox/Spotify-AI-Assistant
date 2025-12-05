@@ -1,9 +1,7 @@
 package com.example.spotifyaisystem;
 
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-
 import java.nio.file.Path;
 import java.util.List;
 

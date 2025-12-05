@@ -5,8 +5,6 @@ import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ChatModel;
 import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
-
-import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
