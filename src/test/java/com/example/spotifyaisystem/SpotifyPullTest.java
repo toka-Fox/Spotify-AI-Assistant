@@ -15,4 +15,10 @@ public class SpotifyPullTest {
         Track track = api.searchTrack("'commatose' glass beach");
         System.out.println(track.getTitle() + " " + track.getArtistName() + " " + track.getId());
     }
+
+    @Test
+    public void searchArtistTest() throws Exception {
+        Artist artist = api.searchArtist("minor issue");
+        System.out.println(artist.getName() + " with " + artist.getFollowers() + " followers and " + artist.getPopularity() + " popularity");
+    }
 }

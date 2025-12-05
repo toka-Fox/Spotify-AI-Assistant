@@ -12,6 +12,7 @@ class AiExplainerTest {
     private String era = "90s";
     private Preference pref = new Preference(genre, mood, era);
     List<Track> tracks;
+    List<Artist> artists;
 
     @Test
     public void getRecommendationsTest() {
@@ -37,5 +38,21 @@ class AiExplainerTest {
         for (Track track : tracks) {
             System.out.println(track.getScore());
         }
+    }
+
+    @Test
+    public void getArtistRecommendationsTest() {
+        artists = aiExplainer.getArtistRecommendations(pref, 2);
+
+        for (Artist artist : artists) {
+            System.out.println(artist.getName());
+        }
+    }
+
+    @Test
+    public void explainArtistRecommendations() {
+        artists = aiExplainer.getArtistRecommendations(pref, 2);
+        String result = aiExplainer.explainArtistRecommendations(pref, artists);
+        System.out.println(result);
     }
 }
