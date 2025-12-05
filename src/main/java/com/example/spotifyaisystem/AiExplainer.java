@@ -82,6 +82,47 @@ public class AiExplainer {
         return null;
     }
 
+    public List<Artist> getArtistRecommendations(Preference pref, int count) {
+        String query = "Give me " + count + " artists in the format of - [ARTIST1], [ARTIST2], etc. " +
+                "Do not output any other text other than that. The songs must have the following traits:\n" +
+                "In the genre of " + pref.genres() +",\n" +
+                "A mood of " + pref.moods() + ",\n" +
+                "In the music era of " + pref.eras();
+
+        try {
+            SpotifyApiClient spotifyClient = new SpotifyApiClient();
+
+            ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+                    .model(ChatModel.GPT_4_1_MINI)
+                    .addUserMessage(query)
+                    .build();
+
+            ChatCompletion completion = client.chat().completions().create(params);
+            String output = extractFirstText(completion);
+
+            String[] results = output.split(", ");
+
+            List<Artist> fromSpotify = new java.util.ArrayList<>(List.of());
+
+            for (String result : results) {
+                System.out.println(result);
+                Artist artist = spotifyClient.searchArtist(result);
+                fromSpotify.add(artist);
+            }
+
+            if (!fromSpotify.isEmpty()) {
+                System.out.println("Loaded " + fromSpotify.size() + " artists from Spotify API.");
+                return fromSpotify;
+            } else {
+                System.out.println("Spotify returned no artists.");
+            }
+        } catch (Exception e) {
+            System.out.println("API failed: " + e.getMessage());
+        }
+
+        return null;
+    }
+
     public String explainRecommendations(Preference pref, List<Track> recommendedTracks) {
         String genres = String.join(", ", pref.genres());
         String moods = String.join(", ", pref.moods());
@@ -97,6 +138,33 @@ public class AiExplainer {
                         "Moods: " + moods + "\n" +
                         "Eras: " + eras + "\n" +
                         "Recommended: " + trackList + "\n\n" +
+                        "Explain in 3–5 sentences why these tracks match the genres and moods given.";
+
+        ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
+                .model(ChatModel.GPT_4_1_MINI)
+                .addUserMessage(userPrompt)
+                .build();
+
+        ChatCompletion completion = client.chat().completions().create(params);
+
+        return extractFirstText(completion);
+    }
+
+    public String explainArtistRecommendations(Preference pref, List<Artist> recommendedArtists) {
+        String genres = String.join(", ", pref.genres());
+        String moods = String.join(", ", pref.moods());
+        String eras = String.join(", ", pref.eras());
+
+        String artistList = recommendedArtists.stream()
+                .map(a -> a.getName() + " with " + a.getFollowers() + " followers and with" + a.getGenres() + "genres")
+                .collect(Collectors.joining("; "));
+
+        String userPrompt =
+                "Explain a simple artist recommendation in a casual way.\n\n" +
+                        "Genres: " + genres + "\n" +
+                        "Moods: " + moods + "\n" +
+                        "Eras: " + eras + "\n" +
+                        "Recommended: " + artistList + "\n\n" +
                         "Explain in 3–5 sentences why these tracks match the genres and moods given.";
 
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()

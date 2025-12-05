@@ -13,11 +13,6 @@
             <Label text="Genres:" textFill="WHITE" />
             <Label text="Moods:" textFill="WHITE" />
          <Label text="Era:" textFill="WHITE" />
-            <Label text="Number of Results:" textFill="WHITE">
-                <padding>
-                    <Insets top="30.0" />
-                </padding>
-            </Label>
         </VBox>
         <VBox prefHeight="437.0" prefWidth="275.0" spacing="10.0">
             <padding>
@@ -26,16 +21,25 @@
             <TextField fx:id="genreField" promptText="Rock, Pop, etc." style="-fx-background-color: rgb(108, 108, 115); -fx-text-fill: white;" />
             <TextField fx:id="moodField" promptText="Happy, Sad, etc." style="-fx-background-color: rgb(108, 108, 115); -fx-text-fill: white;" />
          <TextField fx:id="eraField" promptText="80s, 90s, etc." style="-fx-background-color: rgb(108, 108, 115); -fx-text-fill: white;" />
-            <Spinner fx:id="countSpinner" editable="true" prefHeight="25.0" prefWidth="190.0" style="-fx-base: rgb(108, 108, 115);">
-                <VBox.margin>
-                    <Insets top="32.0" />
-                </VBox.margin>
-            </Spinner>
         </VBox>
     </HBox>
-    <VBox alignment="CENTER_RIGHT" layoutX="126.0" layoutY="249.0" prefHeight="80.0" prefWidth="174.0" spacing="10.0">
+    <VBox alignment="CENTER_RIGHT" layoutX="10.0" layoutY="220.0" prefHeight="117.0" prefWidth="295.0" spacing="10.0">
+      <HBox alignment="TOP_RIGHT" prefHeight="19.0" prefWidth="295.0">
+         <children>
+               <Label text="Number of Results:" textFill="WHITE">
+               <padding>
+                  <Insets right="10.0" top="8.0" />
+               </padding>
+               </Label>
+               <Spinner fx:id="countSpinner" editable="true" prefHeight="25.0" prefWidth="167.0" style="-fx-base: rgb(108, 108, 115);" />
+         </children>
+      </HBox>
         <Button fx:id="recommendButton" mnemonicParsing="false" onAction="#recommend" style="-fx-background-color: rgb(108, 108, 115);" text="Get Recommendations" textFill="WHITE" />
         <Button fx:id="exportButton" disable="true" mnemonicParsing="false" onAction="#export" style="-fx-background-color: rgb(108, 108, 115);" text="Export to text file" textFill="WHITE" />
     </VBox>
    <TextArea fx:id="outputArea" layoutX="324.0" layoutY="48.0" prefHeight="304.0" prefWidth="455.0" style="-fx-background-color: rgb(48, 48, 55);" wrapText="true" />
+   <HBox alignment="TOP_RIGHT" layoutX="163.0" layoutY="53.0" prefHeight="0.0" prefWidth="137.0">
+      <children>
+         <ToggleButton fx:id="artistToggle" mnemonicParsing="false" onAction="#toggle" style="-fx-background-color: rgb(108, 108, 115);" text="Artists" textFill="WHITE" />
+      </children></HBox>
 </AnchorPane>

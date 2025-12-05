@@ -3,9 +3,13 @@ package com.example.spotifyaisystem;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+
+import java.nio.file.Path;
 import java.util.List;
 
 public class GUIController {
+    @FXML private ToggleButton artistToggle;
+
     @FXML private TextField genreField;
     @FXML private TextField moodField;
     @FXML private TextField eraField;
@@ -19,6 +23,7 @@ public class GUIController {
     private final AiExplainer aiExplainer = new AiExplainer();
 
     private List<Track> recommendations;
+    private List<Artist> artistRecommendations;
 
     @FXML
     public void initialize() {
@@ -42,26 +47,51 @@ public class GUIController {
             exportButton.setDisable(false);
             Preference preference = new Preference(genreLine, moodLine, eraLine);
 
-            try {
-                recommendations = aiExplainer.getRecommendations(preference, countSpinner.getValue());
-                aiExplainer.scoreRecommendations(recommendations, preference);
+            if (artistToggle.getText().equals("Artists")) {
+                try {
+                    recommendations = aiExplainer.getRecommendations(preference, countSpinner.getValue());
+                    aiExplainer.scoreRecommendations(recommendations, preference);
 
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i < recommendations.size(); i++) {
-                    String label = (i + 1) + " " + '"' + recommendations.get(i).getTitle() + '"' + " by " + recommendations.get(i).getArtistName() + "\n" +
-                            "      Score: " + recommendations.get(i).getScore() + "\n" +
-                            "      Link: " + recommendations.get(i).getLink() + "\n\n";
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < recommendations.size(); i++) {
+                        String label = (i + 1) + " " + '"' + recommendations.get(i).getTitle() + '"' + " by " + recommendations.get(i).getArtistName() + "\n" +
+                                "      Score: " + recommendations.get(i).getScore() + "\n" +
+                                "      Link: " + recommendations.get(i).getLink() + "\n\n";
 
-                    sb.append(label);
+                        sb.append(label);
+                    }
+
+                    String aiexplanation = "AI Explanation: \n" + aiExplainer.explainRecommendations(preference, recommendations) + "\n";
+                    sb.append(aiexplanation);
+
+                    outputArea.setText(sb.toString());
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
                 }
+            } else {
+                try {
+                    artistRecommendations = aiExplainer.getArtistRecommendations(preference, countSpinner.getValue());
 
-                String aiexplanation = "AI Explanation: \n" + aiExplainer.explainRecommendations(preference, recommendations) + "\n";
-                sb.append(aiexplanation);
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < recommendations.size(); i++) {
+                        String label = (i + 1) + " " + '"' + artistRecommendations.get(i).getName() + '"' + " with " + artistRecommendations.get(i).getFollowers() + " followers\n" +
+                                "      Popularity: " + artistRecommendations.get(i).getPopularity() + "\n" +
+                                "      Genres: " + artistRecommendations.get(i).getGenres() + "\n" +
+                                "      Link: " + artistRecommendations.get(i).getLink() + "\n\n";
 
-                outputArea.setText(sb.toString());
-            } catch (Exception e) {
-                System.out.println(e.getMessage());
+                        sb.append(label);
+                    }
+
+                    String aiexplanation = "AI Explanation: \n" + aiExplainer.explainArtistRecommendations(preference, artistRecommendations) + "\n";
+                    sb.append(aiexplanation);
+
+                    outputArea.setText(sb.toString());
+                } catch (Exception e) {
+                    System.out.println(e.getMessage());
+                }
             }
+
+
 
         } else {
             outputArea.setText("Please enter at least one field.");
@@ -71,11 +101,28 @@ public class GUIController {
     public void export() {
         RecommendationExporter exporter = new RecommendationExporter();
         try {
-            var path = exporter.exportAsCsv(recommendations, "recommendations_gui.txt");
+            Path path;
+            if (artistToggle.getText().equals("Songs")) {
+                path = exporter.exportAsCsvArtists(artistRecommendations, "artists_gui.txt");
+            } else {
+                path = exporter.exportAsCsv(recommendations, "recommendations_gui.txt");
+            }
+
             outputArea.appendText("\nExported to: " + path.toAbsolutePath() + "\n");
+
         } catch (Exception ex) {
             outputArea.appendText("\nFailed to export: " + ex.getMessage() + "\n");
         }
     }
 
+
+    public void toggle() {
+        String s = artistToggle.getText();
+
+        if (s.equals("Artists")) {
+            artistToggle.setText("Songs");
+        } else {
+            artistToggle.setText("Artists");
+        }
+    }
 }
