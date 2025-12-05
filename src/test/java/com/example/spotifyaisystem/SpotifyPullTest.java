@@ -13,6 +13,6 @@ public class SpotifyPullTest {
     @Test
     public void searchTrackTest() throws Exception {
         Track track = api.searchTrack("'commatose' glass beach");
-        System.out.println(track);
+        System.out.println(track.getTitle() + " " + track.getArtistName() + " " + track.getId());
     }
 }

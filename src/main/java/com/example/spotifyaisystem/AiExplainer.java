@@ -41,14 +41,12 @@ public class AiExplainer {
         return firstChoice.message().content().orElse("");
     }
 
-    public List<Track> getRecommendations(String genre, String mood, String era, int count) {
-        System.out.println(era);
-
+    public List<Track> getRecommendations(Preference pref, int count) {
         String query = "Give me " + count + " songs in the format of - '[SONG1]' [ARTIST1], '[SONG2]' [ARTIST2], etc. " +
                             "Do not output any other text other than that. The songs must have the following traits:\n" +
-                            "In the genre of " + genre +",\n" +
-                            "A mood of " + mood + ",\n" +
-                            "In the music era of " + era;
+                            "In the genre of " + pref.genres() +",\n" +
+                            "A mood of " + pref.moods() + ",\n" +
+                            "In the music era of " + pref.eras();
 
         try {
             SpotifyApiClient spotifyClient = new SpotifyApiClient();

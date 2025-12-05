@@ -37,14 +37,13 @@ public class GUIController {
         String genreLine = genreField.getText().trim();
         String moodLine = moodField.getText().trim();
         String eraLine = eraField.getText().trim();
-        boolean includeNewArtists = true;//newArtistsBox.isSelected();
 
         if (!genreLine.isBlank() && !moodLine.isBlank() && !eraLine.isBlank()) {
             exportButton.setDisable(false);
-            Preference preference = new Preference(genreLine, moodLine, eraLine, includeNewArtists);
+            Preference preference = new Preference(genreLine, moodLine, eraLine);
 
             try {
-                recommendations = aiExplainer.getRecommendations(preference.genres(), preference.moods(), preference.eras(), countSpinner.getValue());
+                recommendations = aiExplainer.getRecommendations(preference, countSpinner.getValue());
                 aiExplainer.scoreRecommendations(recommendations, preference);
 
                 StringBuilder sb = new StringBuilder();
