@@ -35,7 +35,7 @@
          </children>
       </HBox>
         <Button fx:id="recommendButton" mnemonicParsing="false" onAction="#recommend" style="-fx-background-color: rgb(108, 108, 115);" text="Get Recommendations" textFill="WHITE" />
-        <Button fx:id="exportButton" disable="true" mnemonicParsing="false" onAction="#export" style="-fx-background-color: rgb(108, 108, 115);" text="Export to text file" textFill="WHITE" />
+        <Button fx:id="exportButton" disable="true" mnemonicParsing="false" onAction="#export" style="-fx-background-color: rgb(108, 108, 115);" text="Export to CVS file" textFill="WHITE" />
     </VBox>
    <TextArea fx:id="outputArea" layoutX="324.0" layoutY="48.0" prefHeight="304.0" prefWidth="455.0" style="-fx-background-color: rgb(48, 48, 55);" wrapText="true" />
    <HBox alignment="TOP_RIGHT" layoutX="163.0" layoutY="53.0" prefHeight="0.0" prefWidth="137.0">
