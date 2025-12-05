@@ -10,7 +10,9 @@ target/
 *.iml
 *.ipr
 recommendations_gui.txt
+recommendations_gui.cvs
 artists_gui.txt
+artists_gui.cvs
 config.properties
 
 ### Eclipse ###

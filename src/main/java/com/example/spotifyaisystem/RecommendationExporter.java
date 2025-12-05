@@ -7,9 +7,6 @@ import java.util.List;
 
 public class RecommendationExporter {
 
-    /**
-     * Export TRACK recommendations as CSV-like text.
-     */
     public Path exportAsCsv(List<Track> tracks, String fileName)
             throws IOException {
 
@@ -31,9 +28,6 @@ public class RecommendationExporter {
         return path;
     }
 
-    /**
-     * Export ARTIST recommendations as CSV-like text.
-     */
     public Path exportAsCsvArtists(List<Artist> artists, String fileName)
             throws IOException {
 

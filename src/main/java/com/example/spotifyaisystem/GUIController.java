@@ -103,9 +103,9 @@ public class GUIController {
         try {
             Path path;
             if (artistToggle.getText().equals("Songs")) {
-                path = exporter.exportAsCsvArtists(artistRecommendations, "artists_gui.txt");
+                path = exporter.exportAsCsvArtists(artistRecommendations, "artists_gui.cvs");
             } else {
-                path = exporter.exportAsCsv(recommendations, "recommendations_gui.txt");
+                path = exporter.exportAsCsv(recommendations, "recommendations_gui.cvs");
             }
 
             outputArea.appendText("\nExported to: " + path.toAbsolutePath() + "\n");
