@@ -41,6 +41,7 @@ public class RecommendationExporter {
                     .append("\n        Followers: ").append(artist.getFollowers())
                     .append("\n        Genres: ").append(String.join(", ", artist.getGenres()))
                     .append("\n        Popularity: ").append(artist.getPopularity())
+                    .append("\n        Link: ").append(artist.getLink())
                     .append("\n");
         }
 
